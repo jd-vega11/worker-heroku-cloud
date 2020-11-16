@@ -1,0 +1,28 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+USERNAME_DB = "$USERNAME_DB"
+DB_KEY = "$DB_KEY"
+
+[dev-packages]
+
+[packages]
+django = "*"
+django-cors-headers = "*"
+djangorestframework = "*"
+pillow = "*"
+sendgrid = "*"
+psycopg2-binary = "*"
+gunicorn = "*"
+django-amazon-ses = "*"
+django-ses = "*"
+django-mailer = "*"
+djongo = "*"
+django-storages = "*"
+pycurl = "*"
+django-redis = "*"
+celery = {extras = ["sqs"], version = "*"}
+
+[requires]
+python_version = "3.8"
