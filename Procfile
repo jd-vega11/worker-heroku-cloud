@@ -1,1 +1,1 @@
-web: gunicorn api.wsgi
+worker: celery -A api worker
