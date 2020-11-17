@@ -23,6 +23,7 @@ django-storages = "*"
 pycurl = "*"
 django-redis = "*"
 celery = {extras = ["sqs"], version = "*"}
+dnspython = "*"
 
 [requires]
 python_version = "3.8"

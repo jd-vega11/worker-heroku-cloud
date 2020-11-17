@@ -99,14 +99,13 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'designdb',
-        'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': os.getenv('URL_DB'),
-            'port': int(os.getenv('DB_PORT')),
-            'username': os.getenv('USERNAME_MONGO'),
-            'password': os.getenv('MONGO_KEY'),
-        },
+        "CLIENT": {
+           "name": os.getenv('DB_NAME'),
+           "host": os.getenv('URL_DB'),
+           'username': os.getenv('USERNAME_MONGO'),
+           'password': os.getenv('MONGO_KEY'),
+           "authMechanism": "SCRAM-SHA-1",
+        }, 
     }
 }
 
@@ -116,7 +115,7 @@ REDIS_URL = os.getenv('REDIS_URL')
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://{REDIS_URL}/',
+        'LOCATION': f'{REDIS_URL}',
         'TIMEOUT': 120,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
