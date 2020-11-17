@@ -63,6 +63,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     f'http://{os.getenv("FRONT_URL_CORS")}',
+    f'https://{os.getenv("FRONT_URL_CORS")}',
     "http://172.24.98.138:8080"
 ]
 
