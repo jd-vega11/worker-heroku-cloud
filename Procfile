@@ -1,1 +1,1 @@
-worker: celery -A api worker --loglevel=info
+worker: celery -A api worker -E -B --loglevel=INFO
