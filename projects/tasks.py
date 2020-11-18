@@ -136,26 +136,25 @@ def createDesignConverted(design_original, designer_name, design_datetime):
 
 def saveTimeLogs(log_entry, dyno_id):
     try:
-        if(len(log_entries)>0):
-            machineIdFileName = re.sub('[^0-9a-zA-Z]+', '_', dyno_id)
-            log_filename = '{}.{}'.format(machineIdFileName, 'csv')            
-            log_directory = "logs"
-            log_path = os.path.join(log_directory, log_filename)
+        machineIdFileName = re.sub('[^0-9a-zA-Z]+', '_', dyno_id)
+        log_filename = '{}.{}'.format(machineIdFileName, 'csv')            
+        log_directory = "logs"
+        log_path = os.path.join(log_directory, log_filename)
 
-            client = boto3.client('s3')
+        client = boto3.client('s3')
 
-            try:                
-                current_data = client.get_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)
-                current_data_object = current_data['Body'].read()
-            except Exception as read_error:
-                print(read_error)
+        try:                
+            current_data = client.get_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)
+            current_data_object = current_data['Body'].read()
+        except Exception as read_error:
+            print(read_error)
 
-            if current_data_object is not None:
-                 appended_data = current_data_object + log_entry.encode(encoding='UTF-8',errors='replace')
-            else:
-                appended_data = log_entry.encode(encoding='UTF-8',errors='replace')
+        if current_data_object is not None:
+                appended_data = current_data_object + log_entry.encode(encoding='UTF-8',errors='replace')
+        else:
+            appended_data = log_entry.encode(encoding='UTF-8',errors='replace')
 
-            client.put_object(Body=appended_data, Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)
+        client.put_object(Body=appended_data, Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)           
             
     except Exception as log_error:
         print(log_error)
