@@ -30,7 +30,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Email library definition
-EMAIL_BACKEND = 'django_ses.SESBackend'
+EMAIL_BACKEND = 'django_mailgun.MailgunBackend'
+MAILGUN_ACCESS_KEY = os.getenv('MAILGUN_ACCESS_KEY')
+MAILGUN_SERVER_NAME = os.getenv('MAILGUN_SERVER_NAME')
 
 # Application definition
 

@@ -23,6 +23,7 @@ pycurl = "*"
 django-redis = "*"
 celery = {extras = ["sqs"], version = "*"}
 dnspython = "*"
+django-mailgun = "*"
 
 [requires]
 python_version = "3.8"

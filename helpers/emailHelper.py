@@ -1,9 +1,11 @@
 import os
-from sendgrid.helpers.mail import Mail
 from django.core.mail import send_mail
 
+text = ''
+designer_email_G = ''
 
 def sendEmail(designer_email, designer_name, design_datetime):
+    global text, designer_email
     text = '''
      Dear {},
 
@@ -16,23 +18,16 @@ def sendEmail(designer_email, designer_name, design_datetime):
 
      Design Match 07 Team'''.format(designer_name, design_datetime)
 
-    message = Mail(
-        from_email = os.getenv('FROM_EMAIL'),
-        to_emails = designer_email,
-        subject='Design processing finished',
-        plain_text_content=text
-        send_mail('Design processing finished', 
-        text, 
-        os.getenv('FROM_EMAIL')),
-        [designer_email]
-    )
+    designer_email_G = designer_email
 
-    try:
-        sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-    except Exception as e:
-        print(e.message)
+    send_simple_message()
+
+def send_simple_message():
+    return requests.post(
+        os.getenv('MAILGUN_SERVER_NAME'),
+        auth=("api", os.getenv('MAILGUN_ACCESS_KEY')),
+        data={"from": os.getenv('FROM_EMAIL'),
+            "to": [designer_email_G],
+            "subject": "Design processing finished",
+            "text": text})
 
