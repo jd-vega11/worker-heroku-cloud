@@ -5,7 +5,7 @@ text = ''
 designer_email_G = ''
 
 def sendEmail(designer_email, designer_name, design_datetime):
-    global text, designer_email
+    global text, designer_email_G
     text = '''
      Dear {},
 
