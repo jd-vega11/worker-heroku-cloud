@@ -143,6 +143,7 @@ def saveTimeLogs(log_entry, dyno_id):
 
         client = boto3.client('s3')
 
+        current_data_object = None
         try:                
             current_data = client.get_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)
             current_data_object = current_data['Body'].read()
@@ -150,7 +151,7 @@ def saveTimeLogs(log_entry, dyno_id):
             print(read_error)
 
         if current_data_object is not None:
-                appended_data = current_data_object + log_entry.encode(encoding='UTF-8',errors='replace')
+            appended_data = current_data_object + log_entry.encode(encoding='UTF-8',errors='replace')
         else:
             appended_data = log_entry.encode(encoding='UTF-8',errors='replace')
 
