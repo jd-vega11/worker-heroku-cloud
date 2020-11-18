@@ -24,6 +24,7 @@ django-redis = "*"
 celery = {extras = ["sqs"], version = "*"}
 dnspython = "*"
 django-mailgun = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"
