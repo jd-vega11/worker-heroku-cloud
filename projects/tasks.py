@@ -15,6 +15,7 @@ import re
 import subprocess
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
+import boto3
 
 
 @shared_task(bind=True)
@@ -22,9 +23,7 @@ def processDesigns(self, pending_design_id):
 
     pending_design = Designs.objects.get(design_uuid=pending_design_id)
 
-    ec2_unique_id = getUniqueIdentifierMachine()
-    log_entries = list()
-
+    dyno_id = getUniqueIdentifierMachine()
     startFullTime = time.time()        
     try:
         pending_design.design_state = 'EN_PROCESO'
@@ -88,12 +87,11 @@ def processDesigns(self, pending_design_id):
             endConversionTime-startConversionTime,
             enddatabaseUpdateTime-startdatabaseUpdateTime,
             endemailSendTime-startemailSendTime,
-            ec2_unique_id,
+            dyno_id,
             timezone.now()
             )
-        log_entries.append(log_entry)
 
-        saveTimeLogs(log_entries, ec2_unique_id)            
+        saveTimeLogs(log_entry, dyno_id)            
     except Exception as log_error:
         print(log_error)
 
@@ -136,45 +134,39 @@ def createDesignConverted(design_original, designer_name, design_datetime):
         print(err)
         return None
 
-def saveTimeLogs(log_entries, ec2_unique_id):
+def saveTimeLogs(log_entry, dyno_id):
     try:
         if(len(log_entries)>0):
-            machineIdFileName = re.sub('[^0-9a-zA-Z]+', '_', ec2_unique_id)
-            log_filename = '{}.{}'.format(machineIdFileName, 'csv')
-            
-            log_directory = os.path.join(os.getenv('NFS_LOGS_SERVER_PATH'), 'logs')
-            Path(log_directory).mkdir(parents=True, exist_ok=True)
-
+            machineIdFileName = re.sub('[^0-9a-zA-Z]+', '_', dyno_id)
+            log_filename = '{}.{}'.format(machineIdFileName, 'csv')            
+            log_directory = "logs"
             log_path = os.path.join(log_directory, log_filename)
 
-            already_exists = os.path.isfile(log_path) 
+            client = boto3.client('s3')
 
-            times=open(log_path,'a+')
+            try:                
+                current_data = client.get_object(Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)
+                current_data_object = current_data['Body'].read()
+            except Exception as read_error:
+                print(read_error)
 
-            if(not already_exists):
-                headers = '{},{},{},{},{},{}'.format(
-                        'fullTime',
-                        'conversionTime',
-                        'databaseUpdateTime',
-                        'emailSendTime',
-                        'ec2UniqueId',
-                        'timestamp'
-                        )                    
-                times.write(headers)
+            if current_data_object is not None:
+                 appended_data = current_data_object + log_entry.encode(encoding='UTF-8',errors='replace')
+            else:
+                appended_data = log_entry.encode(encoding='UTF-8',errors='replace')
 
-            times.writelines(log_entries)
-
-            times.close()
+            client.put_object(Body=appended_data, Bucket=os.getenv('AWS_STORAGE_BUCKET_NAME'), Key=log_path)
+            
     except Exception as log_error:
         print(log_error)
 
 def getUniqueIdentifierMachine():
     try:
-        subprocess_id = subprocess.Popen("ec2metadata --instance-id", shell=True, stdout=subprocess.PIPE)
-        subprocess_return = subprocess_id.stdout.read()
-        return str(subprocess_return)
+        dyno_id = os.getenv('DYNO')
+        return str(dyno_id)
     except Exception as identifier_error:
         print(identifier_error)
+        return "Worker1"
         
 
 class TaskFailure(Exception):
