@@ -1,1 +1,1 @@
-worker: celery --app api worker -l info -c 8
+worker: celery --app api worker -l info -c 4
